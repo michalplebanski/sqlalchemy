@@ -10,9 +10,9 @@ clean_measure = Table(
     'clean_measure', meta,
     Column('id', Integer, primary_key=True),
     Column('station', Text),
-    Column('date', Text),
+    Column('date', Date),
     Column('precib', Float),
-    Column('tobs', Text)
+    Column('tobs', Text),
 )
 
 clean_stations = Table(
@@ -24,7 +24,7 @@ clean_stations = Table(
     Column('elevation', Float),
     Column('name', Text),
     Column('country', Text),
-    Column('state', Text)
+    Column('state', Text),
 )
 
 meta.create_all(clean_db)
@@ -41,17 +41,17 @@ with open('clean_measure.csv', 'r') as clean_measure_file:
     next(csvreader)
     
     # Iterate through all rows in CSV file and add them to database
+    id = 0
     for row in csvreader:
+        id += 1
         station = row[0]
         date = row[1]
         precib = float(row[2])
         tobs = int(row[3])
 
-        conn.execute('INSERT INTO clean_measure VALUES (?, ?, ?, ?)', (station, date, precib, tobs))
+        conn.execute('INSERT INTO clean_measure VALUES (?, ?, ?, ?, ?)', (id, station, date, precib, tobs))
 
 #clean_station
-
-conn = clean_db.connect()
 
 with open('clean_stations.csv', 'r') as clean_stations_file:
     csvreader = csv.reader(clean_stations_file)
@@ -60,7 +60,9 @@ with open('clean_stations.csv', 'r') as clean_stations_file:
     next(csvreader)
     
     # Iterate through all rows in CSV file and add them to database
+    id = 0
     for row in csvreader:
+        id += 1
         station = row[0]
         latitude = float(row[1])
         longitude = float(row[2])
@@ -69,8 +71,9 @@ with open('clean_stations.csv', 'r') as clean_stations_file:
         country = row[5]
         state = row[6]
 
-        conn.execute('INSERT INTO clean_stations VALUES (?, ?, ?, ?, ?, ?, ?)', (station, latitude, longitude, elevation, name, country, state))
+        conn.execute('INSERT INTO clean_stations VALUES (?, ?, ?, ?, ?, ?, ?, ?)', (id, station, latitude, longitude, elevation, name, country, state))
 
-"""print(conn.execute("SELECT * FROM clean_measure LIMIT 5").fetchall())
+print(conn.execute("SELECT * FROM clean_measure LIMIT 5").fetchall())
 print(conn.execute("SELECT * FROM clean_stations LIMIT 5").fetchall()) 
-"""
+
+conn.close()
